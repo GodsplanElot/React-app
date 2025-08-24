@@ -1,9 +1,15 @@
-
+import { useEffect } from "react";
 
 function App() {
+
+  useEffect(() => {
+    //Side effect, It is changing something outside its component
+    
+  })
+
   return (
     <div>
-      <input type="text" className="form-control form-control-lg "/>
+      
     </div>
   )
 }
