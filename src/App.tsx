@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient, {CanceledError} from "./services/api-client";
 
+
 interface User {
   id: number;
   name: string;
@@ -47,7 +48,19 @@ const deleteUser = (user: User) => {
 }
 
 
+const addUser = () => {
+  const originalUsers = [...users];
+  const newUser = { id:0, name: 'Mosh'};
+  setUsers([newUser, ...users])
 
+  apiClient
+    .post('/users/', newUser)
+    .then(({ data: savedUser }) => setUsers([savedUser, ...users]))
+    .catch(err => {
+      setError(err.message);
+      setUsers(originalUsers)
+    })
+}
 
 
 const updateUser = (user: User) => {
@@ -68,6 +81,7 @@ const updateUser = (user: User) => {
     <>
       {error && <p className="text-danger">{error}</p>}
       {isLoading && <div className="spinner-border"></div>}
+      <button className="btn btn-primary mb-3" onClick={addUser}>Add</button>
       <ul className="list-group p-3">
         {users.map(user =>( 
           <li key={user.id} className="list-group-item d-flex justify-content-between">
