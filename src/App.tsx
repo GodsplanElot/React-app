@@ -1,7 +1,11 @@
-import ListGroup from "./components/ListGroup";
+
 
 function App() {
-  return <div><ListGroup /></div>;
+  return (
+    <div>
+      <input type="text" className="form-control form-control-lg "/>
+    </div>
+  )
 }
 
 export default App;
