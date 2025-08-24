@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
-import apiClient, {CanceledError} from "./services/api-client";
-
-
-interface User {
-  id: number;
-  name: string;
-}
+import  {CanceledError} from "./services/api-client";
+import userService, { User } from "./services/user-service";
 
 function App() {
   const [users, setUsers] = useState<User[]>([]);
@@ -14,13 +9,11 @@ function App() {
 
   
   useEffect(() => {
-    const controller = new AbortController();
-    
-    setLoading(true)
-    apiClient
-    .get<User[]>('/users/', { signal: controller.signal})
-    .then((res) => {
-      setUsers(res.data)
+
+    setLoading(true);
+    const {request, cancel} = userService.getAllUsers()
+    request.then((res) => {
+      setUsers(res.data) 
       setLoading(false);
     })
     .catch(err => {
@@ -32,16 +25,15 @@ function App() {
   setLoading(false)
   }) */
  
- return () => controller.abort();
+ return () => cancel();
 }, [])
 
 const deleteUser = (user: User) => {
   const originalUsers = [...users];
   setUsers(users.filter(u => u.id !== user.id));
 
-  apiClient
-    .delete('/users/' + user.id)
-    .catch(err => {
+
+    userService.deleteUser(user.id).catch(err => {
       setError(err.message);
       setUsers(originalUsers);
     })
@@ -53,10 +45,11 @@ const addUser = () => {
   const newUser = { id:0, name: 'Mosh'};
   setUsers([newUser, ...users])
 
-  apiClient
-    .post('/users/', newUser)
-    .then(({ data: savedUser }) => setUsers([savedUser, ...users]))
-    .catch(err => {
+  
+  userService
+  .createUser(newUser)
+  .then(({ data: savedUser }) => setUsers([savedUser, ...users]))
+  .catch(err => {
       setError(err.message);
       setUsers(originalUsers)
     })
@@ -68,9 +61,8 @@ const updateUser = (user: User) => {
   const updatedUser = { ...user, name: user.name + '!'};
   setUsers(users.map(u => u.id === user.id ? updatedUser : u))
 
-  apiClient
-  .patch('/users/' + user.id, updateUser)
-  .catch(err => {
+  
+  userService.updateUser(updatedUser).catch(err => {
     setError(err.message);
     setUsers(originalUsers);
   })
